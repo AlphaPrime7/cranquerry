@@ -19,5 +19,5 @@ Depends:
 VignetteBuilder: knitr
 Imports: 
     stringr
-URL: 
-BugReports:
+URL: https://github.com/AlphaPrime7/cranstats
+BugReports:https://github.com/AlphaPrime7/cranstats/issues
