@@ -234,7 +234,7 @@ download_all_data = function(package, range_start = 0, multi.core = TRUE){
     cl = parallel::makeCluster(cores)
     parallel::clusterExport(cl = cl, envir = environment(), varlist = c("urls"))
     filenames <- parallel::parLapply(cl, urls,
-                                     function(x){stringr::str_match(x,'\\d+-\\d+-\\d+')})
+                                     function(x){stringr::str_match(x,'\\d+-\\d+-\\d+\\.\\w+\\.\\w+')})
     parallel::stopCluster(cl)
 
   } else {
