@@ -198,3 +198,88 @@ getpkgsv7 = function(){
   return(pkgs)
 }
 
+
+#' Download GZIP files
+#'
+#' @author Tingwei Adeck
+#'
+#' @import utils
+#' @import data.table
+#'
+#' @return Check pwd for downloaded GZIP files.
+#'
+#' @export
+#'
+#' @examples
+#' download_all_data("normfluodbf", range_start = 194)
+#' download_all_data("normfluodbf", range_start = 194, multi.core = F)
+
+download_all_data = function(package, range_start = 0, multi.core = TRUE){
+
+  if (.Platform$OS.type == "windows") cores <- 1L else cores <- detectCores()
+  #if (.Platform$OS.type == "unix") cores <- detectCores() else cores <- 1L
+
+  data = data.table::fread('http://cran-logs.rstudio.com/', fill = TRUE)
+  start <- get_initial_release_date(package) + range_start
+  today <- last_avail_date()
+
+  all_days <- seq(start, today, by = 'day')
+  year <- as.POSIXlt(all_days)$year + 1900
+
+  urls <- paste0('http://cran-logs.rstudio.com/', year, '/', all_days, '.csv.gz')
+  #urls <- .GlobalEnv$urls #more correct as below
+  if(!("urls" %in% ls(environment())) ) assign("urls", urls, envir = environment())
+
+  if(multi.core){
+    cl = parallel::makeCluster(cores)
+    parallel::clusterExport(cl = cl, envir = environment(), varlist = c("urls"))
+    filenames <- parallel::parLapply(cl, urls,
+                                     function(x){stringr::str_match(x,'\\d+-\\d+-\\d+')})
+    parallel::stopCluster(cl)
+
+  } else {
+    file_names = parallel::mclapply(urls, function(x){stringr::str_match(x,'\\d+-\\d+-\\d+\\.\\w+\\.\\w+')}, mc.cores = cores )
+  }
+
+  for(i in 1:length(urls)){
+    #curl::curl_fetch_multi(urls)
+    n = paste0(package,"_") #package should be all, package is just a reference point for the timeline
+    utils::download.file(
+      url = urls[i],
+      mode = "w", #wb
+      method = "wget", #auto
+      destfile = paste0(n, file_names[i]))
+  }
+
+}
+
+#' Package download logs
+#'
+#' @author Tingwei Adeck
+#'
+#'
+#' @return Downloads log per package provided for a specified date from the present.
+#'
+#' @export
+#'
+#' @examples
+#' pkg_logs(c("normfluodbf","tidyDenovix"), 5)$tidyDenovix
+
+pkg_logs = function(package, days_from_today){
+
+  if (!curl::has_internet()) stop("Check internet connection.", call. = FALSE)
+
+  date_range = c(Sys.Date() - days_from_today, Sys.Date())
+  date_range
+
+  log_list = c()
+  for (i in date_range) {
+    pd = packageLog(c(package), date = i)
+    log_list = c(log_list, pd)
+  }
+  log_list
+
+}
+
+
+

@@ -2,6 +2,7 @@ Package: cranstats
 Type: Package
 Title: A Collection of Functions to Obtain Package Data from CRAN.
 Version: 0.1.0
+License: MIT + file LICENSE
 Author: Tingwei Adeck
 Maintainer: The package maintainer <awesome.tingwei@outlook.com>
 Description: A simple collection of functions for obtaining packages data from CRAN.
@@ -15,9 +16,8 @@ Suggests:
 Config/testthat/edition: 3
 Depends: 
     R (>= 2.10)
-URL: 
-BugReports:
 VignetteBuilder: knitr
 Imports: 
     stringr
-License: MIT + file LICENSE
+URL: 
+BugReports:
