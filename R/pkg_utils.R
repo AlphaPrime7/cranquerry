@@ -205,6 +205,7 @@ getpkgsv7 = function(){
 #'
 #' @import utils
 #' @import data.table
+#' @import parallel
 #'
 #' @return Check pwd for downloaded GZIP files.
 #'
@@ -233,12 +234,17 @@ download_all_data = function(package, range_start = 0, multi.core = TRUE){
   if(multi.core){
     cl = parallel::makeCluster(cores)
     parallel::clusterExport(cl = cl, envir = environment(), varlist = c("urls"))
-    filenames <- parallel::parLapply(cl, urls,
-                                     function(x){stringr::str_match(x,'\\d+-\\d+-\\d+\\.\\w+\\.\\w+')})
+    filenames <- parallel::parLapply(
+      cl,
+      urls,
+      function(x){stringr::str_match(x,'\\d+-\\d+-\\d+\\.\\w+\\.\\w+')})
     parallel::stopCluster(cl)
 
   } else {
-    file_names = parallel::mclapply(urls, function(x){stringr::str_match(x,'\\d+-\\d+-\\d+\\.\\w+\\.\\w+')}, mc.cores = cores )
+    file_names = parallel::mclapply(
+      urls,
+      function(x){stringr::str_match(x,'\\d+-\\d+-\\d+\\.\\w+\\.\\w+')},
+      mc.cores = cores)
   }
 
   for(i in 1:length(urls)){
@@ -281,5 +287,230 @@ pkg_logs = function(package, days_from_today){
 
 }
 
+
+#MORE FUNCTIONS
+download_all_data = function(package, range_start = 0, multi.core = TRUE){
+  library(parallel)
+  library(packageRank,lib.loc = '/usr/local/lib/R/site-library')
+  if (.Platform$OS.type == "windows") cores <- 1L else cores <- detectCores()
+  #if (.Platform$OS.type == "unix") cores <- detectCores() else cores <- 1L
+
+  data = data.table::fread('http://cran-logs.rstudio.com/', fill = TRUE)
+  start <- get_initial_release_date(package) + range_start
+  today <- last_avail_date()
+
+  all_days <- seq(start, today, by = 'day')
+  year <- as.POSIXlt(all_days)$year + 1900
+
+  urls <- paste0('http://cran-logs.rstudio.com/', year, '/', all_days, '.csv.gz')
+  #urls <- .GlobalEnv$urls #more correct as below
+  if(!("urls" %in% ls(environment())) ) assign("urls", urls, envir = environment())
+
+  if(multi.core){
+    cl = parallel::makeCluster(cores)
+    parallel::clusterExport(cl = cl, envir = environment(), varlist = c("urls"))
+    filenames <- parallel::parLapply(
+      cl,
+      urls,
+      function(x){stringr::str_match(x,'\\d+-\\d+-\\d+\\.\\w+\\.\\w+')})
+    parallel::stopCluster(cl)
+
+  } else {
+    file_names = parallel::mclapply(
+      urls,
+      function(x){stringr::str_match(x,'\\d+-\\d+-\\d+\\.\\w+\\.\\w+')},
+      mc.cores = cores)
+  }
+
+  for(i in 1:length(urls)){
+    #curl::curl_fetch_multi(urls)
+    n = paste0(package,"_") #package should be all, package is just a reference point for the timeline
+    utils::download.file(
+      url = urls[i],
+      mode = "w", #wb
+      method = "wget", #auto
+      destfile = paste0(n, file_names[i]))
+  }
+
+}
+download_all_data("normfluodbf", range_start = 195,multi.core = F)
+
+pkg_data = function(package, days_after_release = 0, multi.core = TRUE){
+  library(parallel)
+
+  if (.Platform$OS.type == "windows") cores <- 1L else cores <- detectCores()
+  #if (.Platform$OS.type == "unix") cores <- detectCores() else cores <- 1L
+
+  #data = data.table::fread('http://cran-logs.rstudio.com/', fill = TRUE)
+  start <- get_initial_release_date(package) + days_after_release
+  date_avail = last_avail_date()
+  today_min_two = Sys.Date() - 2
+
+  all_days <- seq(start, date_avail, by = 'day')
+  #missing_days <- setdiff(all_days, tools::file_path_sans_ext(dir(), TRUE))
+  year <- as.POSIXlt(all_days)$year + 1900
+
+  base_url <- "http://cran-logs.rstudio.com/"
+  urls <- paste0(base_url, year, '/', all_days, '.csv.gz')
+
+  if(!("urls" %in% ls(environment())) ) assign("urls", urls, envir = environment())
+  if(!("all_days" %in% ls(environment())) ) assign("all_days", urls, envir = environment())
+  #urls <- .GlobalEnv$urls #more correct as below
+
+  if(multi.core){
+    cl = parallel::makeCluster(cores)
+    parallel::clusterExport(cl = cl, envir = environment(), varlist = c("urls"))
+    downloads <- parallel::parLapply(
+      cl,
+      urls,
+      function(url){
+        file_names = stringr::str_match(url,'\\d+-\\d+-\\d+\\.\\w+\\.\\w+')
+        anum = as.character(stringr::str_match(file_names,'\\d{4}'))
+        url = paste0(base_url, anum, "/", file_names)
+        n = paste0(package,"_")
+        dfile = paste0(n, file_names)
+
+        utils::download.file(
+          url = url,
+          mode = "w", #wb
+          method = "wget", #auto
+          destfile = paste0(n, file_names))
+      })
+
+    parallel::stopCluster(cl)
+
+  } else {
+    file_names = parallel::mclapply(
+      urls,
+      function(x){stringr::str_match(x,'\\d+-\\d+-\\d+\\.\\w+\\.\\w+')},
+      mc.cores = cores)
+
+    for(i in 1:length(urls)){
+      #curl::curl_fetch_multi(urls)
+      n = paste0(package,"_") #package should be all, package is just a reference point for the timeline
+      utils::download.file(
+        url = urls[i],
+        mode = "w", #wb
+        method = "wget", #auto
+        destfile = paste0(n, file_names[i]))
+
+      downloads <- read.csv(file_names[i])
+      file.remove(file_names[i])
+    }
+
+    return(NULL)
+  }
+
+}
+
+pkg_data("tidyDenovix",days_after_release = 50, multi.core = T)
+
+.pkg_globals_store <- function() {
+  .store <- environment()
+  list(
+    get = function(y) .store[[y]],
+    set = function(y, v) .store[[y]] <- v
+  )
+}
+
+get_gzips = function(pathstring){
+  if(length(list.files(path = pathstring, pattern = "\\.gz$", full.names = F)) > 0) {
+    files_list <- list.files(path = pathstring, pattern = "\\.gz$", full.names = F)
+    return(files_list)
+  } else{
+    normfluodbf_warn_msg("No .gz files in dir")
+  }
+}
+get_gzips(getwd())
+
+read_gzips = function(package, zpath){
+
+  gz_files = get_gzips(zpath) #assuming functions here are used solely for this purpose
+  gz_dfs <- lapply(gz_files, readr::read_csv)
+
+  n <- paste0(package, "_gz")
+  for(i in 1:length(gz_dfs)){
+    n <- n
+    assign(paste0(n, i), as.data.frame(gz_dfs[i]), envir = parent.frame())
+    .globals$set(paste0(n, i),as.data.frame(gz_dfs[i]))
+  }
+}
+read_gzips('tidyDenovix', getwd())
+
+condense_gzs = function(path, method = c(1,2)){
+  library(readr, lib.loc = '/usr/local/lib/R/site-library')
+  #library(tidyverse, lib.loc = '/usr/local/lib/R/site-library')
+  library(tidyr, lib.loc = '/usr/local/lib/R/site-library')
+  library(data.table, lib.loc = '/usr/local/lib/R/site-library')
+  library(readr, lib.loc = '/usr/local/lib/R/site-library')
+  library(tidytable)
+  if (1 %in% method){
+    df <-
+      #@import readr
+      list.files(path = path, pattern = "*.gz") %>%
+      map_df(~read_csv(.))
+    return(df)
+  } else {
+    df <-
+      #@import data.table & tidytable
+      list.files(path = getwd() , pattern = "*.gz") %>%
+      map_df(~fread(.))
+    return(df)
+  }
+}
+
+filter_pkg = function(comb_df, pkg_vect, .use = 'dplyr'){
+
+  if(is.null(.use) || .use == 'base'){
+    message('Limited to a single package')
+    pkg_df = comb_df[package == package]
+    return(pkg_df)
+  } else {
+    message('Multiple pkgs can be filtered')
+    pkg_df = comb_df %>%
+      filter(package %in% pkg_vect)
+    return(pkg_df)
+  }
+
+}
+
+test = filter_pkg(cdf,c('tidyDenovix','normfluodbf','tidyAML'))
+
+bind_gz_dfs = function(pkg, zpath, files = NULL, ...){
+  #read_gzips must be ran before this procedure can be ran
+  gzs = get_gzips(zpath)
+
+  #act_env = as.vector(environment())
+  #gzfiles = stringr::str_match(act_env,'\\w+_\\w{2}\\d+') #failed
+  if(is.null(files)) files = gzs else files = files
+
+  ls = c()
+  for(i in 1:length(files)){
+    files = sprintf("%s%s", pkg, paste0("_gz",i))
+    ls = c(ls, files)
+  }
+
+  read_gzips(package=pkg,zpath=zpath)
+
+  pkg_df <- tibble()
+  for(i in 1:length(ls)){
+    df = as.data.frame(.globals$get(ls[i])) %>%
+      dplyr::filter(package == pkg)
+    pkg_df <- bind_rows(pkg_df, df)
+  }
+
+  remove_gzs(zpath)
+  return(pkg_df)
+
+}
+bind_gz_dfs("tidyDenovix",getwd())
+
+remove_gzs = function(zpath){
+  gzs = get_gzips(zpath)
+  for(i in gzs){
+    file.remove(i)
+  }
+}
+remove_gzs(getwd())
 
 
