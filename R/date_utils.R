@@ -18,13 +18,24 @@ last_avail_date = function(){
   #str_extract(logInfo(show.available = TRUE)$`Available log/result`, pattern='\\d+-\\d+-\\d+')
   #gsub(".*[(]|[)].*", "", logInfo(show.available = TRUE)$`Available log/result`)
   if(packageRank::logInfo(Sys.timezone(), upload.time = "17:00")$`Today's results on 'cranlogs'?` == 'Yes.'){
-    logdate = stringr::str_extract_all(logInfo(show.available = TRUE)$`Available log/result`, pattern='\\d+-\\d+-\\d+')
+    logdate = stringr::str_extract_all(logInfo(show.available = TRUE)$`Available log/result`,
+                                       pattern='\\d+-\\d+-\\d+')
 
     logdates = c()
     for (i in logdate) {
       logdates = c(logdates, as.Date(i))
     }
+    logdate = min(logdates)
+    return(as.Date(logdate, origin = "1970-01-01"))
 
+  } else if(packageRank::logInfo(Sys.timezone(), upload.time = "17:00")$`Today's results on 'cranlogs'?` == 'No.'){
+    logdate = stringr::str_extract_all(logInfo(show.available = TRUE)$`Available log/result`,
+                                       pattern='\\d+-\\d+-\\d+')
+
+    logdates = c()
+    for (i in logdate) {
+      logdates = c(logdates, as.Date(i))
+    }
     logdate = min(logdates)
     return(as.Date(logdate, origin = "1970-01-01"))
 
