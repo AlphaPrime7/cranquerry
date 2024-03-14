@@ -22,7 +22,16 @@
 #' mdownload_logs('tidyDenovix', zpath = getwd(), days_after_release = 48, memoise = T)
 #' mdownload_logs(zpath = getwd(), days_after_release = 0, "2024-03-07") #fails
 #' }
-mdownload_logs = function(package, zpath, days_after_release = 0, memoise = T, ...){
+mdownload_logs = function(package, zpath, days_after_release = 0, memoise = T, check_internet = T, ...){
+
+  if(check_internet) {
+    proceed <- utils::askYesNo("Do you have a stable & fast internet connection?", default = T)
+    if (isFALSE(proceed) && !curl::has_internet() ) {
+      stop("Check internet connection.", call. = FALSE)
+    }
+  } else {
+    #
+  }
 
   #--------(limit dates)
   alt_start = as.character(...)
