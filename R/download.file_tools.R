@@ -86,12 +86,21 @@ download_logs <- memoise::memoise(mdownload_logs) #more to learn here
 
 
 #optimized -more work to do here??
+#' Title
+#' @import doFuture
+#' @param packages
+#' @param days_after_release
+#' @param multi.core
+#' @param use.future
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' download_gzs("tidyDenovix",days_after_release = 51, multi.core = T, use.future = F)
 download_gzs = function(packages = NULL, days_after_release = 0, multi.core = TRUE, use.future = F){
-  library(parallel)
-  library(packageRank,lib.loc = '/usr/local/lib/R/site-library')
-  library(doFuture, quietly = TRUE)
 
-  #manage cores or threads
+  #-------(cores or threads)
   if (.Platform$OS.type == "unix") cores <- detectCores() else cores <- detectCores()
 
   #date_utils
@@ -195,5 +204,5 @@ download_gzs = function(packages = NULL, days_after_release = 0, multi.core = TR
 
 }
 
-download_gzs("tidyDenovix",days_after_release = 51, multi.core = T, use.future = F)
+
 
