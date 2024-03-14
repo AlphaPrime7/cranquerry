@@ -85,7 +85,7 @@ mdownload_logs = function(package, zpath, days_after_release = 0, memoise = T, .
 download_logs <- memoise::memoise(mdownload_logs) #more to learn here
 
 
-#optimized -more work to do here
+#optimized -more work to do here??
 download_gzs = function(packages = NULL, days_after_release = 0, multi.core = TRUE, use.future = F){
   library(parallel)
   library(packageRank,lib.loc = '/usr/local/lib/R/site-library')
