@@ -77,6 +77,7 @@ remove_gzs = function(zpath){
 #' @export
 #'
 #' @examples
+#' .memoise(getwd(), dates)
 .memoise = function(zpath, file_names){
   dir_files = as.Date(tools::file_path_sans_ext(as.Date(get_gzips(zpath)),TRUE))
   not_in_wd = as.Date(setdiff(file_names, dir_files), origin = "1970-01-01")
@@ -86,7 +87,7 @@ remove_gzs = function(zpath){
     return(FALSE)
   }
 }
-.memoise(getwd(), dates)
+
 
 
 

@@ -15,9 +15,8 @@
 #' @return
 #' @export
 #'
-#' @note logs should be linked to package release date. Don't want logs for dates
-#' the package did not exist. The base version. file.copy same as install.pkgs.
-#' @keywords internal_memoise
+#' @note Base template for multithread version.
+#' @keywords memoise
 #' @examples
 #' \dontrun{
 #' mdownload_logs('tidyDenovix', zpath = getwd(), days_after_release = 48, memoise = T)
@@ -85,31 +84,8 @@ mdownload_logs = function(package, zpath, days_after_release = 0, memoise = T, .
 
 download_logs <- memoise::memoise(mdownload_logs) #more to learn here
 
-#' Package download logs
-#'
-#' @return Downloads log per package provided for a specified date from the present.
-#'
-#' @note handicap is single date at a time unless one uses a for loop.
-#'
-#' @export
-#'
-#' @examples
-#' filter_log_pkgrank(c("normfluodbf","tidyDenovix"), 5)$tidyDenovix
 
-filter_log_pkgrank = function(package, days_from_today){
-
-  if (!curl::has_internet()) stop("Check internet connection.", call. = FALSE)
-
-  date_range = seq(Sys.Date() - days_from_today, by = "day", length.out = days_from_today)
-
-  ll = c()
-  for (i in date_range) {
-    pd = packageLog(c(package), date = i, memoization = T)
-    ll = c(ll, pd)
-  }
-  ll
-}
-
+#optimized -more work to do here
 download_gzs = function(packages = NULL, days_after_release = 0, multi.core = TRUE, use.future = F){
   library(parallel)
   library(packageRank,lib.loc = '/usr/local/lib/R/site-library')
