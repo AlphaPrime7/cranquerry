@@ -33,7 +33,7 @@ get_gzips = function(pathstring, fn = F){
       files_list <- list.files(path = pathstring, pattern = "\\.gz$", full.names = T)
       return(files_list)
     } else{
-      cranstats_warn_msg("No .gz files in dir")
+      cranquerry_warn_msg("No .gz files in dir")
       ev = c()
       return(ev)
     }
@@ -44,7 +44,7 @@ get_gzips = function(pathstring, fn = F){
       return(files_list)
     } else{
       ev = c()
-      cranstats_warn_msg("No .gz files in dir")
+      cranquerry_warn_msg("No .gz files in dir")
       return(ev)
     }
 

@@ -63,12 +63,11 @@ get_initial_release_date = function(packages){
 
   for (pkg in packages)
   {
-    # api data for package. we want the initial release - the first element of the "timeline"
     pkg_data = httr::GET(paste0("http://crandb.r-pkg.org/", pkg, "/all"))
     pkg_data <- jsonlite::fromJSON(rawToChar(pkg_data$content))
 
     initial_release = pkg_data$timeline[[1]]
-    min_date = min(min_date, as.Date(initial_release)) #get the current day-1 or initial release date
+    min_date = min(min_date, as.Date(initial_release))
   }
 
   min_date

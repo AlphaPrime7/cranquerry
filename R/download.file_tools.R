@@ -26,8 +26,8 @@ mdownload_logs = function(package, zpath, days_after_release = 0, memoise = T, c
 
   if(check_internet) {
     proceed <- utils::askYesNo("Do you have a stable & fast internet connection?", default = T)
-    if (isFALSE(proceed) && !curl::has_internet() ) {
-      stop("Check internet connection.", call. = FALSE)
+    if (isFALSE(proceed) || !curl::has_internet() ) {
+      cranquerry_stop("**Check internet connection: absent or slow connect is no bueno**")
     }
   } else {
     #
@@ -73,7 +73,7 @@ mdownload_logs = function(package, zpath, days_after_release = 0, memoise = T, c
 
   #---------(main with memoise)
   if(length(not_in_wd) == 0 || is.null(not_in_wd)){
-    cranstats_warn_msg('No files to download: All files in directory')
+    cranquerry_warn_msg('No files to download: All files in directory')
 
   } else {
     for(i in 1:length(urls)){
@@ -194,7 +194,7 @@ download_gzs = function(packages = NULL, days_after_release = 0, multi.core = TR
                          method = "wget", #auto
                          destfile = paste0(file_names[i],n) )
                      }
-    dmsg = sprintf("Downloaded multithreadedly using the future pkg on %s", .Platform$OS.type)
+    dmsg = sprintf("Downloaded multithreadedly using the doFuture pkg on %s", .Platform$OS.type)
     return(dmsg)
 
   }  else if(!multi.core){

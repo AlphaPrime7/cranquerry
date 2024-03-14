@@ -19,9 +19,9 @@ get_platform_stats = function(){
   relos = as.data.frame(relos)
   relos = janitor::clean_names(relos)
 
-  returns_list <- list("flavor"=as.vector(relos$null_flavor),
+  returns_list <- list("OS_flavor"=as.vector(relos$null_flavor),
                        "ok"=as.vector(relos$null_ok),
-                       "err" = as.vector(relos$null_error),
+                       "error" = as.vector(relos$null_error),
                        "total"=as.vector(relos$null_total))
 
   return(as.data.frame(returns_list))
