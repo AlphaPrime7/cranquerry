@@ -52,7 +52,7 @@ condense_gzs = function(path, method = c(1,2)){
 }
 
 #' Title
-#'
+#' @import dplyr
 #' @param pkgs
 #' @param zpath
 #' @param prefix
@@ -63,8 +63,8 @@ condense_gzs = function(path, method = c(1,2)){
 #' @export
 #'
 #' @examples
+#' beta = bind_gz_dfs("tidyDenovix",getwd())
 bind_gz_dfs = function(pkgs, zpath, prefix = "head", files = NULL, ...){
-  library(dplyr,lib.loc = lib.loc)
   gzs = get_gzips(zpath)
 
   #act_env = as.vector(environment())
@@ -90,8 +90,6 @@ bind_gz_dfs = function(pkgs, zpath, prefix = "head", files = NULL, ...){
   return(pkg_df)
 
 }
-
-beta = bind_gz_dfs("tidyDenovix",getwd())
 
 #' Title
 #'

@@ -181,7 +181,6 @@ download_gzs = function(packages = NULL, days_after_release = 0, multi.core = TR
 
   }  else if(!multi.core){
     for(i in 1:length(urls)){
-      #curl::curl_fetch_multi(urls)
       n = (".csv.gz")
       utils::download.file(
         url = urls[i],
