@@ -1,4 +1,4 @@
-Package: cranstats
+Package: cranquerry
 Type: Package
 Title: A Collection of Functions to Obtain Package Data from CRAN.
 Version: 0.1.0
