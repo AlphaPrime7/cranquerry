@@ -1,9 +1,16 @@
 Package: cranquerry
 Type: Package
 Title: A Collection of Functions to Obtain Package Data from CRAN.
-Version: 0.1.0
+Version: 0.1.0.9000
+Date: 2024-03-13
 License: MIT + file LICENSE
 Author: Tingwei Adeck
+Authors@R: 
+    person(given = "Tingwei",
+           family = "Adeck",
+           role = c("aut", "cre", "cph"),
+           email = "awesome.tingwei@outlook.com",
+           comment = c(ORCID = "0009-0009-7450-8863"))
 Maintainer: The package maintainer <awesome.tingwei@outlook.com>
 Description: A simple collection of functions for obtaining packages data from CRAN.
     These functions were inspired by a post on stack overflow and I decided to put them together
@@ -15,9 +22,9 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Depends: 
-    R (>= 2.10)
+    R (>= 3.5.0)
 VignetteBuilder: knitr
 Imports: 
     stringr
-URL: https://github.com/AlphaPrime7/cranstats
-BugReports:https://github.com/AlphaPrime7/cranstats/issues
+URL: https://github.com/AlphaPrime7/cranquerry
+BugReports: https://github.com/AlphaPrime7/cranquerry/issues
