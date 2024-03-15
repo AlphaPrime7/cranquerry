@@ -19,10 +19,10 @@
 #' @keywords memoise
 #' @examples
 #' \dontrun{
-#' mdownload_logs('tidyDenovix', zpath = getwd(), days_after_release = 48, memoise = T)
-#' mdownload_logs(zpath = getwd(), days_after_release = 0, "2024-03-07") #fails
+#' .download_logs('tidyDenovix', zpath = getwd(), days_after_release = 48, memoise = T)
+#' .download_logs(zpath = getwd(), days_after_release = 0, "2024-03-07") #fails
 #' }
-mdownload_logs = function(package, zpath, days_after_release = 0, memoise = T, check_internet = T, ...){
+.download_logs = function(package, zpath, days_after_release = 0, memoise = T, check_internet = T, ...){
 
   if(check_internet) {
     proceed <- utils::askYesNo("Do you have a stable & fast internet connection?", default = T)
@@ -91,7 +91,7 @@ mdownload_logs = function(package, zpath, days_after_release = 0, memoise = T, c
   }
 }
 
-download_logs <- memoise::memoise(mdownload_logs) #more to learn here
+download_logs <- memoise::memoise(.download_logs) #more to learn here
 
 
 #optimized -more work to do here??
@@ -115,7 +115,6 @@ download_gzs = function(packages = NULL, days_after_release = 0, multi.core = TR
   #date_utils
   start <- get_initial_release_date(packages) + days_after_release
   date_avail = last_avail_date()
-  today_min_two = Sys.Date() - 2 #two days from current is safe
 
   #days
   all_days <- seq(start, date_avail, by = 'day')

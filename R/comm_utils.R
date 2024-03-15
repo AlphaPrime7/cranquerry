@@ -73,4 +73,16 @@ singlecore_msg <- function() {
   message(sprintf("cranquerry: Downloaded sequentially on %s; using multi.core is advisable", .Platform$OS.type), call. = F)
 }
 
+#' git message
+#' @family comms
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' git_msg()
+git_msg <- function() {
+  message(sprintf("cranquerry: Changes commited on %s at %s", .Platform$OS.type, system.time()), call. = F)
+}
+
 

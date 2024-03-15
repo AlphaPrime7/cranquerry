@@ -62,7 +62,7 @@ getpkgsv2 = function() {
 
 getpkgsv3 = function(){
 
-  url = 'https://cloud.r-project.org/web/packages/available_packages_by_name.html'
+  url = .globals$get("version_3_4")
 
   webpage = read_html(url)
   head(html_attr(html_nodes(webpage, "a"), "href"),26) #turns out with some formatting the packages can be extracted
@@ -86,7 +86,7 @@ getpkgsv3 = function(){
 
 getpkgsv4 = function(){
 
-  url = 'https://cloud.r-project.org/web/packages/available_packages_by_name.html'
+  url = .globals$get("version_3_4")
 
   dirty_pkgs = paste(readLines(url), collapse="\n")
   dirty_pkgs = str_match_all(dirty_pkgs, "<a href=\"(.*?)\"")
@@ -111,7 +111,7 @@ getpkgsv4 = function(){
 
 getpkgsv5 = function(){
 
-  url = 'https://cloud.r-project.org/web/packages/available_packages_by_name.html'
+  url = .globals$get("version_5")
 
   webpage <- read_html(url)
   data_html <- html_nodes(webpage,'tr td') #nodes or css selectors are table rows and table data cell
@@ -144,7 +144,7 @@ getpkgsv5 = function(){
 
 getpkgsv6 <- function(){
 
-  url = "http://cran.r-project.org/web/packages/packages.rds"
+  url = .globals$get("version_6")
 
   mytemp <- tempfile();
   utils::download.file(url, mytemp);
@@ -168,7 +168,7 @@ getpkgsv6 <- function(){
 #' }
 getpkgsv7 = function(){
 
-  pkgs = httr::GET("http://crandb.r-pkg.org/-/desc", content_type("application/octet-stream"))
+  pkgs = httr::GET(.globals$get("version_7"), content_type("application/octet-stream"))
   pkgs = names(jsonlite::fromJSON(rawToChar(pkgs$content)))
   #pkgs = names(httr::content(pkgs))
   return(pkgs)
