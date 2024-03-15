@@ -1,3 +1,9 @@
+#' Commit
+#' @param local_user
+#' @param msg
+#' @return
+#' @export
+#' @examples
 git_commit = function(local_user, msg){
 
   #-----(check git-basic)
@@ -15,30 +21,25 @@ git_commit = function(local_user, msg){
                                                      stderr = TRUE)), title="Confirm your system account?")
   lusr = as.numeric(lusr)
 
-  #-----(main)
+  #-----(user check)
   if( local_user != usr_options[lusr] || local_user != usr_options[lusr] || local_user != Sys.info()["user"])
     stop(sprintf("check your username; expecting %s", Sys.info()["user"]))
 
-
-
-    system2("git", args = c("commit", "-a", "-m", msg))
-
+  #-----(commit command)
+  system2("git", args = c("commit", "-a", "-m", msg))
 
 }
 
-#' Title
+#' Non commits
 #' @rdname git
 #' @family git
-#'
 #' @import R.utils
 #' @param log_path
-#'
 #' @return
 #' @export
-#'
 #' @examples
-#' get_noncommits_log(getwd())
-get_noncommits_log = function(log_path){
+#' noncommits_log(getwd())
+noncommits_log = function(log_path){
   #----(log path)
   log_path = file.path(log_path,"log")
 
@@ -96,42 +97,190 @@ get_noncommits_log = function(log_path){
 
 }
 
-
 #' Stage
 #' @rdname git
 #' @family git
-#'
+#' @import tcltk
 #' @return
 #' @export
-#'
 #' @note
-#' With a fun twist, progress bar gimmick added.
+#' With a fun twist, tcltk progress bar gimmick added. Need to fix geometry.
 #' @examples
-#' git_stage
+#' git_stage()
 git_stage = function(){
-  pb = tkProgressBar(title = "Commit progress bar", label = "Commit progress bar",
+  pb = tcltk::tkProgressBar(title = "Commit progress bar", label = "Commit progress bar",
                      min = 0, max = 1, initial = 0, width = 300)
   Sys.sleep(0.5)
   inf_index = system("git status --short", intern = T)
   infidels_ls = system2("git", c('status', '--short'))
+  nc_log = noncommits_log()
 
   for(i in seq(inf_index)) {
     j = (i/length(inf_index)) * 100
     Sys.sleep(0.1)
     system2("git", c("add", "."))
     info <- sprintf("%d%% done", round(j))
-    setTkProgressBar(pb, i, sprintf("commits (%s)", info), info)
+    tcltk::setTkProgressBar(pb, i, sprintf("commits (%s)", info), info)
   }
   Sys.sleep(1)
   close(pb)
 
+}
+
+#' Init
+#' @return
+#' @export
+#' @examples
+#' git_init()
+git_init = function(){
+    system2("git", c("init"))
+}
+
+#' Remote
+#' @return
+#' @export
+#' @examples
+#' git_remote()
+git_remote = function(url, remote_name=NULL){
+  if(is.null(remote_name))
+    system2("git", c("remote", "add", "origin", url)) else
+      system2("git", c("remote", "add", remote_name, url))
+}
+
+#' Push
+#' @return
+#' @export
+#' @examples
+#' git_push()
+git_push = function(url = NULL, remote_name = NULL, force = F){
+  if(is.null(url) && is.null(remote_name)){
+    if(force) system2("git", c("push", "origin", "master", "-f")) else
+      system2("git", c("push", "origin", "master"))
+  } else if(!is.null(url) || is.null(remote_name)){
+    if(force) system2("git", c("push", url, "-f")) else
+      system2("git", c("push", url))
+  } else if(!is.null(url) && !is.null(remote_name)){
+    if(force) system2("git", c("push", paste0("--set-", remote_name) , url, "-f")) else
+      system2("git", c("push", is.null(remote_name), url))
+
+  }
 
 }
 
+#' Pull
+#' @return
+#' @export
+#' @examples
+#' git_pull()
+git_pull = function(){
+  system2("git", c("pull", "origin", "master"))
+}
 
-library(askpass)
-pass = askpass('Enter the password')
+#' Clone
+#' @return
+#' @export
+#' @examples
+#' git_clone()
+git_clone = function(url){
+  system2("git", c("clone", url))
+}
 
-system2("sudo", args = c("-S", "su"))
+#' Locale
+#' @return
+#' @export
+#' @examples
+#' git_locale()
+git_locale = function(){
+  system2("whereis", c("git"))
+}
 
-system2("git", args = c("commit", "-a", "-m", msg))
+#' Un_init or Remove
+#' @return
+#' @export
+#' @examples
+#' git_remove()
+git_remove = function(){
+  system2("rm", c("rf", ".git"))
+}
+
+#' Reset
+#' @return
+#' @export
+#' @examples
+#' git_reset(number_of_commits_back)
+git_reset = function(number_of_commits_back){
+  number_of_commits_back = as.numeric(number_of_commits_back)
+  system2("git", c("reset", "--hard", paste0("HEAD~",number_of_commits_back)) )
+}
+
+#' Delete
+#' @return
+#' @export
+#' @examples
+#' git_delete()
+git_delete = function(){
+  system2("git", c("push", "origin", "master", "--delete"))
+}
+
+#' Revert
+#' @return
+#' @export
+#' @examples
+#' git_revert(number_of_commits_back)
+git_revert = function(number_of_commits_back, msg, push = F){
+  number_of_commits_back = as.numeric(number_of_commits_back)
+  system2("git", c("revert", "n", paste0("HEAD",number_of_commits_back,"..HEAD")))
+  system2("git", c("commit", "-m", msg))
+  if(push) system2("git", c("push", "origin", "master")) else
+    message("No need to push")
+}
+
+#' New branch
+#' @return
+#' @export
+#' @examples
+#' git_new_branch(branch_name)
+git_new_branch = function(branch_name){
+  system2("git", c("branch",branch_name))
+}
+
+#' Checkout
+#' @return
+#' @export
+#' @examples
+#' git_checkout(new_branch)
+git_checkout = function(new_branch=NULL, base_branch=NULL, create_and_switch = F){
+  if(is.null(base_branch)){
+    if(create_and_switch){
+      system2("git", c("checkout", "-b", new_branch))
+    } else {
+      system2("git", c("checkout", new_branch))
+    }
+  } else {
+    if(create_and_switch){
+      system2("git", c("checkout", "-b", new_branch, base_branch))
+    } else {
+      system2("git", c("checkout", new_branch))
+    }
+
+  }
+
+}
+
+#' Fetch
+#' @return
+#' @export
+#' @examples
+#' git_fetch()
+git_fetch = function(){
+  system2("git", c("fetch","--all"))
+}
+
+#' Stage Specific File Types
+#' @return
+#' @export
+#' @examples
+#' git_stage_spec(ext = ".sh")
+git_stage_spec = function(ext){
+  system2("git", c("add", paste0("git-*", ext)))
+}
