@@ -4,7 +4,7 @@
 #' @return
 #' @export
 #' @examples
-git_commit = function(local_user, msg){
+git_commit = function(local_user, msg, stage_first = FALSE){
 
   #-----(check git-basic)
   if(system2("git", c('version')) != 0 || system('git --version') != 0 || system2("git", c('version')) == 127 )
@@ -26,8 +26,14 @@ git_commit = function(local_user, msg){
     stop(sprintf("check your username; expecting %s", Sys.info()["user"]))
 
   #-----(commit command)
-  system2("git", args = c("commit", "-a", "-m", msg))
-
+  if(stage_all){
+    system2("git", c("add", "."))
+    system2("git", args = c("commit", "-a", "-m", msg))
+    tcltk::tk_messageBox(type='ok',message='Everything committed!')
+  } else {
+    system2("git", args = c("commit", "-a", "-m", msg))
+    tcltk::tk_messageBox(type='ok',message='Everything committed!')
+  }
 }
 
 #' Non commits
@@ -213,6 +219,15 @@ git_reset = function(number_of_commits_back){
   system2("git", c("reset", "--hard", paste0("HEAD~",number_of_commits_back)) )
 }
 
+#' Interactive Add
+#' @return
+#' @export
+#' @examples
+#' git_locale()
+git_add = function(){
+  system2("git", c("add", "i"))
+}
+
 #' Delete
 #' @return
 #' @export
@@ -233,6 +248,15 @@ git_revert = function(number_of_commits_back, msg, push = F){
   system2("git", c("commit", "-m", msg))
   if(push) system2("git", c("push", "origin", "master")) else
     message("No need to push")
+}
+
+#' Restore
+#' @return
+#' @export
+#' @examples
+#' git_restore(filename)
+git_restore = function(filename){
+  system2("git", c("restore",filename))
 }
 
 #' New branch
