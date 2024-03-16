@@ -308,3 +308,12 @@ git_fetch = function(){
 git_stage_spec = function(ext){
   system2("git", c("add", paste0("git-*", ext)))
 }
+
+#' INDEX LOCK RM
+#' @return
+#' @export
+#' @examples
+#' remove_index_lock()
+remove_index_lock = function(){
+  system2("rm", c("--force", "./.git/index.lock"))
+}
