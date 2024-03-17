@@ -59,3 +59,12 @@ edit_home_rprofile = function(){
   help("Rprofile")
 }
 
+#' EDIT HOME Renviron
+#' @return
+#' @export
+#' @examples
+#' edit_renviron()
+edit_renviron = function(){
+  file.edit(file.path("~", ".Renviron"))
+  help("Renviron")
+}

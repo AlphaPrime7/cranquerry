@@ -70,7 +70,7 @@ get_screen_resolution = function(screen_number = NULL){
     }
 
     #---R
-    message(sprintf('The program detected %d screens on the %s platform', numscreens, .Platform$OS.type))
+    message(sprintf('The program detected %d screens on the %s platform; make a screen selection.', numscreens, .Platform$OS.type))
     if(is.null(screen_number)){
       return(screen_res)
     } else {
