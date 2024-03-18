@@ -26,7 +26,7 @@ git_commit = function(local_user, msg, stage_first = FALSE){
     stop(sprintf("check your username; expecting %s", Sys.info()["user"]))
 
   #-----(commit command)
-  if(stage_all){
+  if(stage_first){
     system2("git", c("add", "."))
     system2("git", args = c("commit", "-a", "-m", msg))
     tcltk::tk_messageBox(type='ok',message='Everything committed!')
@@ -142,15 +142,57 @@ git_init = function(){
     system2("git", c("init"))
 }
 
-#' Remote
+#' Remote ADD
 #' @return
 #' @export
 #' @examples
-#' git_remote()
-git_remote = function(url, remote_name=NULL){
+#' git_remote_add()
+git_remote_add = function(url, remote_name=NULL){
   if(is.null(remote_name))
     system2("git", c("remote", "add", "origin", url)) else
       system2("git", c("remote", "add", remote_name, url))
+}
+
+#' Remote SET
+#' @return
+#' @export
+#' @examples
+#' git_remote_set()
+git_remote_set = function(url = NULL, user_name=NULL, remote_name = "origin", ssh = F){
+
+  bn = basename(getwd)
+  if(ssh){
+    system2("git", c("remote", "set-url", remote_name , paste0("ssh://git@github.com:", user_name, "/", bn, ".git")))
+  } else {
+    system2("git", c("remote", "set-url", remote_name , paste0("https://github.com/", user_name, "/", bn, ".git")))
+  }
+}
+
+#' Remote NAMES
+#' @return
+#' @export
+#' @examples
+#' git_remote_versions()
+git_remote_versions = function(){
+    system2("git", c("remote", "-v"))
+}
+
+#' Remote REMOVE
+#' @return
+#' @export
+#' @examples
+#' git_remove_remote()
+git_remove_remote = function(){
+  system2("git", c("remote", "remove", "origin"))
+}
+
+#' MERGE
+#' @return
+#' @export
+#' @examples
+#' git_merge()
+git_merge = function(branch_to_merge = NULL){
+    system2("git", c("merge", branch_to_merge))
 }
 
 #' Push
@@ -158,9 +200,9 @@ git_remote = function(url, remote_name=NULL){
 #' @export
 #' @examples
 #' git_push()
-git_push = function(url = NULL, remote_name = NULL, force = F){
+git_push = function(username = NULL, gh_token = NULL, url = NULL, remote_name = NULL, force = F){
   if(is.null(url) && is.null(remote_name)){
-    if(force) system2("git", c("push", "origin", "master", "-f")) else
+    if(force) system("git push origin master -f", input = rstudioapi::askForPassword("github token")) else
       system2("git", c("push", "origin", "master"))
   } else if(!is.null(url) || is.null(remote_name)){
     if(force) system2("git", c("push", url, "-f")) else
@@ -316,4 +358,13 @@ git_stage_spec = function(ext){
 #' remove_index_lock()
 remove_index_lock = function(){
   system2("rm", c("--force", "./.git/index.lock"))
+}
+
+#' GIT LOG
+#' @return
+#' @export
+#' @examples
+#' git_log()
+git_log = function(){
+  system2("git", c("log"))
 }
