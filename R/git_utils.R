@@ -1,42 +1,31 @@
-#' Commit
-#' @param local_user
-#' @param msg
+#-----(GIT LOCAL SERVER)
+#' LOCALE
 #' @return
 #' @export
 #' @examples
-git_commit = function(local_user, msg, stage_first = FALSE){
-
-  #-----(check git-basic)
-  if(system2("git", c('version')) != 0 || system('git --version') != 0 || system2("git", c('version')) == 127 )
-    cranquerry_warn_msg("git is not installed") else cranquerry_msg('git is installed:proceed')
-
-  #-----(usr options)
-  usr_options = c("goob", "i dont know", "f*** the world", system2("whoami",
-                                                stdout = TRUE,
-                                                stderr = TRUE))
-
-  #-----(menu items)
-  lusr = utils::menu(c("goob", "i dont know",system2("whoami",
-                                                     stdout = TRUE,
-                                                     stderr = TRUE)), title="Confirm your system account?")
-  lusr = as.numeric(lusr)
-
-  #-----(user check)
-  if( local_user != usr_options[lusr] || local_user != usr_options[lusr] || local_user != Sys.info()["user"])
-    stop(sprintf("check your username; expecting %s", Sys.info()["user"]))
-
-  #-----(commit command)
-  if(stage_first){
-    system2("git", c("add", "."))
-    system2("git", args = c("commit", "-a", "-m", msg))
-    tcltk::tk_messageBox(type='ok',message='Everything committed!')
-  } else {
-    system2("git", args = c("commit", "-a", "-m", msg))
-    tcltk::tk_messageBox(type='ok',message='Everything committed!')
-  }
+#' git_locale()
+git_locale = function(){
+  system2("whereis", c("git"))
 }
 
-#' Non commits
+#' INIT
+#' @return
+#' @export
+#' @examples
+#' git_init()
+git_init = function(){
+
+  #-----(check git-basic)
+  if(system2("git", c('version')) != 0 ||
+     system('git --version') != 0 ||
+     system2("git", c('version')) == 127)
+    cranquerry_warn_msg("git is not installed") else cranquerry_msg('git is installed:proceed')
+
+  #-----(Execute)
+  system2("git", c("init"))
+}
+
+#' NON-COMMITS
 #' @rdname git
 #' @family git
 #' @import R.utils
@@ -45,9 +34,13 @@ git_commit = function(local_user, msg, stage_first = FALSE){
 #' @export
 #' @examples
 #' noncommits_log(getwd())
-noncommits_log = function(log_path){
+noncommits_log = function(log_path=NULL){
   #----(log path)
-  log_path = file.path(log_path,"log")
+  if(is.null(log_path)){
+    log_path = file.path(.globals$get(getwd),"log")
+  } else {
+    log_path = file.path(log_path,"log")
+  }
 
   #----(log dir)
   if(isTRUE(dir.exists(log_path))){
@@ -62,7 +55,7 @@ noncommits_log = function(log_path){
     infidels = system("git status --short", intern = T)
 
     #-----(main??)
-    if(countLines(git_ncs)[1] > 1){
+    if(R.utils::countLines(git_ncs)[1] > 1){
       cat(infidels, file = con, sep = "\n", append = T)
       cat( as.character(Sys.time()) , file = con, sep = "\n", append = T)
     } else {
@@ -85,7 +78,7 @@ noncommits_log = function(log_path){
     infidels = system("git status --short", intern = T)
 
     #-----(main??)
-    if(countLines(git_ncs)[1] > 1){
+    if(R.utils::countLines(git_ncs)[1] > 1){
       cat(infidels, file = con, sep = "\n", append = T)
       cat( as.character(Sys.time()) , file = con, sep = "\n", append = T)
     } else {
@@ -103,7 +96,7 @@ noncommits_log = function(log_path){
 
 }
 
-#' Stage
+#' STAGE
 #' @rdname git
 #' @family git
 #' @import tcltk
@@ -111,11 +104,12 @@ noncommits_log = function(log_path){
 #' @export
 #' @note
 #' With a fun twist, tcltk progress bar gimmick added. Need to fix geometry.
+#' Issue with box geometry.
 #' @examples
 #' git_stage()
 git_stage = function(){
   pb = tcltk::tkProgressBar(title = "Commit progress bar", label = "Commit progress bar",
-                     min = 0, max = 1, initial = 0, width = 300)
+                            min = 0, max = 1, initial = 0, width = 300)
   Sys.sleep(0.5)
   inf_index = system("git status --short", intern = T)
   infidels_ls = system2("git", c('status', '--short'))
@@ -133,16 +127,46 @@ git_stage = function(){
 
 }
 
-#' Init
+#' COMMIT
+#' @import svDialogs
+#' @param local_user
+#' @param msg
 #' @return
 #' @export
 #' @examples
-#' git_init()
-git_init = function(){
-    system2("git", c("init"))
+git_commit = function(msg, stage_first = FALSE){
+
+  #-----(commit command)
+  if(stage_first){
+    system2("git", c("add", "."))
+    system2("git", args = c("commit", "-a", "-m", msg))
+    svDialogs::dlg_message(message = 'all files committed', type="ok", gui = .GUI)
+  } else {
+    system2("git", args = c("commit", "-a", "-m", msg))
+    svDialogs::dlg_message(message = 'All files committed', type="ok", gui = .GUI)
+  }
 }
 
-#' Remote ADD
+#------(GITHUB REMOTE)
+
+#' REMOTE SET
+#' @return
+#' @export
+#' @examples
+#' git_remote_set()
+git_remote_set = function(user_name=NULL, remote_name = "origin", ssh = F){
+
+  bn = basename(.globals$get(getwd))
+  if(ssh){
+    system2("git", c("remote", "set-url", remote_name , paste0("ssh://git@github.com:", user_name, "/", bn, ".git")))
+    browseURL(paste0("ssh://git@github.com:", user_name, "/", bn, ".git"))
+  } else {
+    system2("git", c("remote", "set-url", remote_name , paste0("https://github.com/", user_name, "/", bn, ".git")))
+    browseURL(paste0("https://github.com/", user_name, "/", bn, ".git"))
+  }
+}
+
+#' REMOTE ADD
 #' @return
 #' @export
 #' @examples
@@ -153,38 +177,124 @@ git_remote_add = function(url, remote_name=NULL){
       system2("git", c("remote", "add", remote_name, url))
 }
 
-#' Remote SET
+#' REMOTE ALIASES
 #' @return
 #' @export
-#' @examples
-#' git_remote_set()
-git_remote_set = function(url = NULL, user_name=NULL, remote_name = "origin", ssh = F){
-
-  bn = basename(getwd)
-  if(ssh){
-    system2("git", c("remote", "set-url", remote_name , paste0("ssh://git@github.com:", user_name, "/", bn, ".git")))
-  } else {
-    system2("git", c("remote", "set-url", remote_name , paste0("https://github.com/", user_name, "/", bn, ".git")))
-  }
-}
-
-#' Remote NAMES
-#' @return
-#' @export
+#' @note
+#' NULL if no remote aliases created
 #' @examples
 #' git_remote_versions()
 git_remote_versions = function(){
     system2("git", c("remote", "-v"))
 }
 
-#' Remote REMOVE
+#' REMOVE REMOTE
 #' @return
 #' @export
 #' @examples
 #' git_remove_remote()
-git_remove_remote = function(){
-  system2("git", c("remote", "remove", "origin"))
+git_remove_remote = function(remote_alias = "origin"){
+  system2("git", c("remote", "remove", remote_alias))
 }
+
+#' PUSH
+#' @import rstudioapi
+#' @param url
+#' @param remote_name
+#' @param force
+#'
+#' @return
+#' @export
+#'
+#' @examples
+git_push = function(url = NULL, remote_name = NULL, force = F){
+
+  #----(WHOAREU?)
+  user <- svDialogs::dlgInput("Who are you?", Sys.info()["user"])$res
+
+  #-----(usr options)
+  usr_options = c("goob",
+                  "i dont know",
+                  "f*** the world",
+                  system2("whoami",
+                          stdout = TRUE,
+                          stderr = TRUE))
+
+  #-----(menu items)
+  lusr = utils::menu(c("goob",
+                       "i dont know",
+                       system2("whoami",
+                               stdout = TRUE,
+                               stderr = TRUE)),
+                     title="Choose your user account?")
+  lusr = as.numeric(lusr)
+
+  #-----(user check)
+  if(Sys.info()["user"] != user || Sys.info()["user"] != usr_options[lusr] || usr_options[lusr] != rstudioapi::userIdentity())
+    stop(sprintf("check your username; expecting %s", Sys.info()["user"]))
+
+  #----(terminals list)
+  tl = rstudioapi::terminalList()
+
+  #----(check terminal status)
+  bterms = c()
+  for(i in tl){
+    if(!rstudioapi::terminalBusy(i)){
+      bterms = c(bterms, i)
+    }
+  }
+
+  #-----(Execute cmd)
+  if(is.null(url) && is.null(remote_name)){
+    if(force) rstudioapi::terminalExecute("git push origin master -f") else
+      rstudioapi::terminalExecute("git push origin master")
+  } else if(!is.null(url) || is.null(remote_name)){
+    if(force) rstudioapi::terminalExecute(paste("git push", url, "-f", sep = " ")) else
+      rstudioapi::terminalExecute(paste("git push ", url, sep = " "))
+  } else if(!is.null(url) && !is.null(remote_name)){
+    mid = paste0("--set-", remote_name)
+    if(force) rstudioapi::terminalExecute(paste("git push", mid, "-f", sep = " ")) else
+      rstudioapi::terminalExecute(paste("git push", mid, sep = " "))
+
+  }
+
+}
+
+#-----(GITHUB API CALLS)
+#' API USER INFO
+#' @param user_name
+#' @return
+#' @export
+#' @note
+#' curl must be install on ubuntu so "sudo apt install curl"
+#' @examples
+#' github_user_api_information("alphaprime7")
+github_user_api_information = function(user_name){
+  url = paste0("https://api.github.com/users/",user_name)
+  x = system2("curl",c(url), stdout = T)
+  return(x)
+}
+
+#' API PRIVATE USER INFO
+#'
+#' @param user_name
+#' @param gh_token
+#' @return github data
+#' @export
+#' @example
+#' x = github_get_private("alphaprime7", gh_token = Sys.getenv('gh_token_linux'))
+github_get_private = function(user_name, gh_token){
+  #url = paste0("https://api.github.com/users/",user_name)
+  url = "https://api.github.com/gists/starred"
+  user_name = paste0(user_name,":")
+  x = system2("curl",c("--user", paste0(user_name,gh_token), url), stdout = T)
+  return(x)
+}
+
+
+
+
+#-----(MULTI-BRANCHES)
 
 #' MERGE
 #' @return
@@ -195,25 +305,6 @@ git_merge = function(branch_to_merge = NULL){
     system2("git", c("merge", branch_to_merge))
 }
 
-#' Push
-#' @return
-#' @export
-#' @examples
-#' git_push()
-git_push = function(username = NULL, gh_token = NULL, url = NULL, remote_name = NULL, force = F){
-  if(is.null(url) && is.null(remote_name)){
-    if(force) system("git push origin master -f", input = rstudioapi::askForPassword("github token")) else
-      system2("git", c("push", "origin", "master"))
-  } else if(!is.null(url) || is.null(remote_name)){
-    if(force) system2("git", c("push", url, "-f")) else
-      system2("git", c("push", url))
-  } else if(!is.null(url) && !is.null(remote_name)){
-    if(force) system2("git", c("push", paste0("--set-", remote_name) , url, "-f")) else
-      system2("git", c("push", is.null(remote_name), url))
-
-  }
-
-}
 
 #' Pull
 #' @return
@@ -233,14 +324,7 @@ git_clone = function(url){
   system2("git", c("clone", url))
 }
 
-#' Locale
-#' @return
-#' @export
-#' @examples
-#' git_locale()
-git_locale = function(){
-  system2("whereis", c("git"))
-}
+
 
 #' Un_init or Remove
 #' @return
