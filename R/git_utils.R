@@ -223,14 +223,17 @@ git_push = function(url = NULL, remote_name = NULL, force = F){
   #-----(menu items)
   lusr = utils::menu(c("goob",
                        "i dont know",
+                       "f*** the world",
                        system2("whoami",
                                stdout = TRUE,
                                stderr = TRUE)),
-                     title="Choose your user account?")
+                     title="Confirm who you are YODA***?")
   lusr = as.numeric(lusr)
 
   #-----(user check)
-  if(Sys.info()["user"] != user || Sys.info()["user"] != usr_options[lusr] || usr_options[lusr] != rstudioapi::userIdentity())
+  if(Sys.info()["user"] != user ||
+     Sys.info()["user"] != usr_options[lusr] ||
+     usr_options[lusr] != rstudioapi::userIdentity())
     stop(sprintf("check your username; expecting %s", Sys.info()["user"]))
 
   #----(terminals list)
