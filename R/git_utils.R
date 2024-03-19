@@ -267,6 +267,12 @@ git_push = function(url = NULL, remote_name = NULL, force = F){
 
   }
 
+  #----(CLEAR SHS)
+  tl = rstudioapi::terminalList()
+  for (i in tl) {
+    rstudioapi::terminalKill(i)
+  }
+
 }
 
 #-----(GITHUB API CALLS)
