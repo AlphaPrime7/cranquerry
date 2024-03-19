@@ -1,5 +1,6 @@
 #-----(GIT LOCAL SERVER)
 #' LOCALE
+#' @family git
 #' @return
 #' @export
 #' @examples
@@ -9,6 +10,7 @@ git_locale = function(){
 }
 
 #' INIT
+#' @family git
 #' @return
 #' @export
 #' @examples
@@ -26,7 +28,6 @@ git_init = function(){
 }
 
 #' NON-COMMITS
-#' @rdname git
 #' @family git
 #' @import R.utils
 #' @param log_path
@@ -97,7 +98,6 @@ noncommits_log = function(log_path=NULL){
 }
 
 #' STAGE
-#' @rdname git
 #' @family git
 #' @import tcltk
 #' @return
@@ -128,6 +128,7 @@ git_stage = function(){
 }
 
 #' COMMIT
+#' @family git
 #' @import svDialogs
 #' @param local_user
 #' @param msg
@@ -150,6 +151,7 @@ git_commit = function(msg, stage_first = FALSE){
 #------(GITHUB REMOTE)
 
 #' REMOTE SET
+#' @family git
 #' @return
 #' @export
 #' @examples
@@ -167,6 +169,7 @@ git_remote_set = function(user_name=NULL, remote_name = "origin", ssh = F){
 }
 
 #' REMOTE ADD
+#' @family git
 #' @return
 #' @export
 #' @examples
@@ -178,6 +181,7 @@ git_remote_add = function(url, remote_name=NULL){
 }
 
 #' REMOTE ALIASES
+#' @family git
 #' @return
 #' @export
 #' @note
@@ -189,6 +193,7 @@ git_remote_versions = function(){
 }
 
 #' REMOVE REMOTE
+#' @family git
 #' @return
 #' @export
 #' @examples
@@ -198,6 +203,7 @@ git_remove_remote = function(remote_alias = "origin"){
 }
 
 #' PUSH
+#' @family git
 #' @import rstudioapi
 #' @param url
 #' @param remote_name
@@ -265,6 +271,7 @@ git_push = function(url = NULL, remote_name = NULL, force = F){
 
 #-----(GITHUB API CALLS)
 #' API USER INFO
+#' @family api
 #' @param user_name
 #' @return
 #' @export
@@ -279,7 +286,7 @@ github_user_api_information = function(user_name){
 }
 
 #' API PRIVATE USER INFO
-#'
+#' @family api
 #' @param user_name
 #' @param gh_token
 #' @return github data
